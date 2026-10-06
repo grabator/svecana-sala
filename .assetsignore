@@ -1,0 +1,9 @@
+# fajlovi koji se ne objavljuju kao dio stranice
+.git
+.gitignore
+worker
+wrangler.jsonc
+serve.mjs
+README.md
+node_modules
+.wrangler

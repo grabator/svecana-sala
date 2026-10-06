@@ -1,0 +1,8 @@
+# DEMO: cijela stranica je sakrivena od pretraživača.
+# Za pravog klijenta zamijeni sa:
+#   User-agent: *
+#   Allow: /
+#   Disallow: /gosti.html
+#   Sitemap: https://ADRESA-SALONA/sitemap.xml
+User-agent: *
+Disallow: /

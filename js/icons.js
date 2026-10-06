@@ -1,0 +1,57 @@
+/* Ikonice (linijske, 24x24, boja = currentColor). */
+(function () {
+  'use strict';
+  var P = {
+    guests: '<circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16 13.6c2.8.2 5 2.2 5 5"/>',
+    hall: '<path d="M3 20h18M5 20V10M19 20V10M9 20v-6h6v6"/><path d="M2 10l10-6 10 6z"/>',
+    parking: '<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M10 16V8h3a2.5 2.5 0 0 1 0 5h-3"/>',
+    suite: '<path d="M3 18V9M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><path d="M7.5 9.5c-1.4-1-1.6-2.7-.4-3.3.7-.3 1.3.1 1.6.6.3-.5.9-.9 1.6-.6 1.2.6 1 2.3-.4 3.3l-1.2.9z"/>',
+    bed: '<path d="M3 18V8M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="1.8"/>',
+    phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/>',
+    viber: '<path d="M12 3c4.8 0 8 2.4 8 7.4 0 5-3.2 7.2-8 7.2l-3 2.4v-2.7C5.6 16.4 4 14 4 10.4 4 5.4 7.2 3 12 3z"/><path d="M9.5 8.2c.3 2.4 2 4.1 4.3 4.5M12 6.4c1.8.1 3.4 1.6 3.5 3.5M12 8.2c.8.1 1.6.8 1.7 1.7"/>',
+    whatsapp: '<path d="M4 20l1.2-4A8 8 0 1 1 8 18.8z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 .8c-1-.5-2-1.5-2.5-2.5l.8-1-1-2z"/>',
+    mail: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M4 7l8 6 8-6"/>',
+    insta: '<rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17" cy="7" r="1" fill="currentColor"/>',
+    facebook: '<path d="M14 21v-7h2.5l.5-3H14V9.2c0-.9.3-1.6 1.6-1.6H17V5a19 19 0 0 0-2.3-.1C12.4 4.9 11 6.3 11 8.9V11H8.5v3H11v7"/>',
+    calendar: '<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    left: '<path d="M15 5l-7 7 7 7"/>',
+    right: '<path d="M9 5l7 7-7 7"/>',
+    down: '<path d="M6 9l6 6 6-6"/>',
+    up: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+    close: '<path d="M6 6l12 12M18 6L6 18"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    minus: '<path d="M5 12h14"/>',
+    pin: '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+    nav: '<path d="M3 11l18-8-8 18-2-8z"/>',
+    ring: '<circle cx="12" cy="14.5" r="5.5"/><path d="M9.5 9.5L8 6l2-2h4l2 2-1.5 3.5"/>',
+    plane: '<path d="M10.5 21l1.5-6 6 2v-2l-6-4V5.5a1.5 1.5 0 0 0-3 0V11l-6 4v2l6-2 1.5 6z" transform="translate(1 0)"/>',
+    cap: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c2 1.6 4 2.2 6 2.2s4-.6 6-2.2v-5M21 9.5V15"/>',
+    gift: '<rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3 9h18M12 9v11M12 9c-1.5-3.5-5-4-5.5-2S9 9 12 9zm0 0c1.5-3.5 5-4 5.5-2S15 9 12 9z"/>',
+    baby: '<circle cx="12" cy="8" r="4"/><path d="M5 20c.6-3.6 3.4-6 7-6s6.4 2.4 7 6M10.5 7.5h0M13.5 7.5h0"/>',
+    briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2M3 12h18"/>',
+    flower: '<circle cx="12" cy="9" r="2"/><path d="M12 7c0-3 3-3 3-1s-1.5 3-3 3c1.5 0 3 1 3 3s-3 2-3-1c0 3-3 3-3 1s1.5-3 3-3c-1.5 0-3-1-3-3s3-2 3 1zM12 11v10M12 17c-2-2-4-2-5-1M12 15c2-2 4-2 5-1"/>',
+    music: '<path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+    camera: '<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8.5 7l1.5-3h4l1.5 3"/><circle cx="12" cy="13.5" r="3.6"/>',
+    cake: '<path d="M4 20h16v-7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/><path d="M4 15c2 1.5 3 1.5 4 0s3-1.5 4 0 3 1.5 4 0 3-1.5 4 0M12 11V7M12 5c-.8-.8-.8-1.6 0-2.5.8.9.8 1.7 0 2.5z"/>',
+    access: '<circle cx="12" cy="4.5" r="1.8"/><path d="M12 7v6h5l2 5M12 10h4M8.5 10.5A5.5 5.5 0 1 0 15 18"/>',
+    star: '<path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" fill="currentColor" stroke="none"/>',
+    spark: '<path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',
+    glass: '<path d="M8 3h8l-.6 6a3.4 3.4 0 0 1-6.8 0z"/><path d="M12 12.5V20M8.5 20h7"/>',
+    dish: '<path d="M3 17h18M5 17a7 7 0 0 1 14 0M12 8V6.5M10.5 6.5h3"/>',
+    image: '<rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M4 18l6-5 4 3 3-2 4 3"/>',
+    chat: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/>',
+    tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/>',
+    copy: '<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+    download: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+    qr: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+    heart: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.3 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
+    sun: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>'
+  };
+  window.SALON_ICON = function (name, cls) {
+    return '<svg class="ic' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + (P[name] || P.spark) + '</svg>';
+  };
+})();
