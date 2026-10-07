@@ -131,7 +131,7 @@
     return 'viber://chat?number=' + encodeURIComponent(n) + (text ? '&draft=' + encodeURIComponent(text) : '');
   }
   function waHref(text) { return 'https://wa.me/' + String(D.contact.whatsapp || '').replace(/\D/g, '') + (text ? '?text=' + encodeURIComponent(text) : ''); }
-  var ORN = '<svg class="ornament" viewBox="0 0 120 14" aria-hidden="true"><path d="M0 7h46M74 7h46" stroke="currentColor" stroke-width="1"/><path d="M60 1l6 6-6 6-6-6z" fill="none" stroke="currentColor"/><circle cx="60" cy="7" r="1.6" fill="currentColor"/></svg>';
+  var ORN = '<svg class="ornament" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1l6 6-6 6-6-6z" fill="none" stroke="currentColor"/><circle cx="7" cy="7" r="1.6" fill="currentColor"/></svg>';
 
   /* ---------------- zaglavlje ---------------- */
   var NAV = ['date', 'halls', 'menus', 'gallery', 'events', 'location', 'contact'];
@@ -192,7 +192,6 @@
       '<div class="hero-in wrap">' +
       '<p class="hero-kind">' + esc(L(D.kind)) + '</p>' +
       '<h1><span class="sr-only">' + esc(L(D.title)) + '</span><span class="h1-name" aria-hidden="true">' + letters + '</span><span class="hero-city" aria-hidden="true">' + esc(D.city) + '</span></h1>' +
-      '<span class="hero-rule" aria-hidden="true"><i></i>' + ic('spark') + '<i></i></span>' +
       '<p class="hero-tag">' + esc(L(D.tagline)) + '</p>' +
       '<div class="hero-ctas"><a class="btn btn-gold" href="#date">' + ic('calendar') + esc(t('heroCtaDate')) + '</a>' +
       (has.view ? '<a class="btn btn-ghost" href="#view">' + ic('eye') + esc(t('heroCtaView')) + '</a>' : '') + '</div>' +
@@ -265,7 +264,7 @@
     var extras = (D.extras || []).map(function (x) {
       return '<button type="button" class="chip" data-extra="' + esc(x.id) + '" aria-pressed="' + !!S.extras[x.id] + '">' + ic(S.extras[x.id] ? 'check' : 'plus') + esc(L(x.label)) + ' <small>' + esc((x.per === 'guest' ? '+' + price(x.price) + ' ' + t('perGuest') : '+' + price(x.price))) + '</small></button>';
     }).join('');
-    return '<section class="sec" id="date"><div class="wrap">' + head(t('dateEyebrow'), t('dateTitle'), t('dateLead')) +
+    return '<section class="sec" id="date"><div class="wrap">' + head(t('dateEyebrow'), t('dateTitle'), t('dateLead')) + offersBar() +
       '<div class="book-grid">' +
       '<div class="card cal-card reveal">' +
       '<div class="ms-wrap"><button type="button" class="ms-arrow ms-prev" data-ms="-1" aria-label="' + esc(t('prevMonth')) + '" tabindex="-1">' + ic('left') + '</button>' +
@@ -590,13 +589,19 @@
   function viewHref() { return S.vDay && S.vTime ? viberHref(t('msgView', { name: D.name, d: longDate(S.vDay), t: S.vTime })) : '#'; }
   function viewing() {
     if (!has.view) return '';
-    return '<div id="view" class="view-block"><div class="sec-head">' + '<p class="eyebrow">' + esc(t('viewEyebrow')) + '</p>' + splitTitle(t('viewTitle')) + '<p class="lead">' + esc(t('viewLead')) + '</p></div>' +
-      '<div class="card view-card reveal">' +
+    var ok = !!(S.vDay && S.vTime);
+    return '<div id="view" class="view-intro"><div class="sec-head">' + '<p class="eyebrow">' + esc(t('viewEyebrow')) + '</p>' + splitTitle(t('viewTitle')) + '<p class="lead">' + esc(t('viewLead')) + '</p></div>' +
+      '<ul class="view-facts">' +
+      '<li class="reveal">' + ic('clock') + '<span>' + esc(t('viewF1')) + '</span></li>' +
+      '<li class="reveal" style="--d:1">' + ic('chat') + '<span>' + esc(t('viewF2')) + '</span></li>' +
+      '<li class="reveal" style="--d:2">' + ic('calendar') + '<span>' + esc(t('viewF3')) + '</span></li></ul></div>' +
+      '<div class="card view-card reveal" style="--d:1">' +
       '<div class="field"><span>' + esc(t('viewDay')) + '</span><div class="view-cal" id="vcal-body">' + calBody('view') + '</div></div>' +
-      '<div class="field"><span id="vt-l">' + esc(t('viewTime')) + '</span><div class="chips" role="group" aria-labelledby="vt-l">' + D.viewing.times.map(function (x) { return '<button type="button" class="chip" data-vtime="' + esc(x) + '" aria-pressed="' + (S.vTime === x) + '">' + ic('clock') + esc(x) + '</button>'; }).join('') + '</div></div>' +
-      '<p class="view-need' + (S.vDay && S.vTime ? ' ok' : '') + '" id="view-need" aria-live="polite">' + ic(S.vDay && S.vTime ? 'check' : 'eye') + '<span>' + esc(viewNeedText()) + '</span></p>' +
-      '<a class="btn btn-viber' + (S.vDay && S.vTime ? '' : ' is-locked') + '" id="view-send" href="' + esc(viewHref()) + '"' + (S.vDay && S.vTime ? '' : ' aria-disabled="true"') + '>' + ic('viber') + esc(t('viewSend')) + '</a>' +
-      '</div></div>';
+      '<div class="field"><span id="vt-l">' + esc(t('viewTime')) + '</span><div class="time-grid" role="group" aria-labelledby="vt-l">' + D.viewing.times.map(function (x) { return '<button type="button" class="chip" data-vtime="' + esc(x) + '" aria-pressed="' + (S.vTime === x) + '">' + esc(x) + '</button>'; }).join('') + '</div></div>' +
+      '<p class="view-need' + (ok ? ' ok' : '') + '" id="view-need" aria-live="polite">' + ic(ok ? 'check' : 'eye') + '<span>' + esc(viewNeedText()) + '</span></p>' +
+      '<a class="btn btn-viber' + (ok ? '' : ' is-locked') + '" id="view-send" href="' + esc(viewHref()) + '"' + (ok ? '' : ' aria-disabled="true"') + '>' + ic('viber') + esc(t('viewSend')) + '</a>' +
+      '<p class="muted small view-note">' + esc(t('viewNote')) + '</p>' +
+      '</div>';
   }
   function viewNeedText() { return S.vDay ? longDate(S.vDay) + (S.vTime ? ', ' + S.vTime : '') : t('viewNeed'); }
   function updateView() {
@@ -608,21 +613,21 @@
     a.setAttribute('href', viewHref());
     if (ok) a.removeAttribute('aria-disabled'); else a.setAttribute('aria-disabled', 'true');
   }
-  function offersBlock() {
+  function offersBar() {
     if (!offers.length) return '';
-    return '<div id="offers" class="offers-block"><div class="sec-head"><p class="eyebrow">' + esc(t('offersEyebrow')) + '</p>' + splitTitle(t('offersTitle')) + (D.offersLead ? '<p class="lead">' + esc(L(D.offersLead)) + '</p>' : '') + '</div>' +
-      '<ul class="offers">' + offers.map(function (o, i) {
+    return '<div class="offers-bar reveal" id="offers"><p class="ob-head">' + ic('tag') + '<span><b>' + esc(t('offersTitle')) + '</b>' + (D.offersLead ? '<small>' + esc(L(D.offersLead)) + '</small>' : '') + '</span></p>' +
+      '<div class="ob-list">' + offers.map(function (o) {
         var d = parse(o.date);
-        return '<li class="offer reveal" style="--d:' + i + '"><span class="offer-date"><b>' + d.getDate() + '</b><small>' + esc(t('months')[d.getMonth()].slice(0, 3)) + '</small></span>' +
-          '<span class="offer-txt"><b>' + esc(t('days')[d.getDay()]) + '</b><small>' + esc(longDate(o.date, true)) + (o.note ? ' · ' + esc(L(o.note)) : '') + '</small></span>' +
-          '<span class="offer-pct">−' + o.discount + '%</span>' +
-          '<button type="button" class="icon-btn" data-pick-date="' + o.date + '" aria-label="' + esc(t('pickOffer') + ': ' + longDate(o.date)) + '">' + ic('arrow') + '</button></li>';
-      }).join('') + '</ul></div>';
+        return '<button type="button" class="ob-chip" data-pick-date="' + o.date + '" aria-label="' + esc(t('pickOffer') + ': ' + longDate(o.date) + ', −' + o.discount + '%') + '">' +
+          '<span class="ob-date"><b>' + d.getDate() + '</b><small>' + esc(t('months')[d.getMonth()].slice(0, 3)) + '</small></span>' +
+          '<span class="ob-txt"><b>' + esc(cap(t('days')[d.getDay()])) + '</b></span>' +
+          '<span class="ob-pct">−' + o.discount + '%</span></button>';
+      }).join('') + '</div></div>';
   }
   function viewSection() {
-    var v = viewing(), o = offersBlock();
-    if (!v && !o) return '';
-    return '<section class="sec" id="' + (v ? 'viewing' : 'offers-sec') + '"><div class="wrap view-grid">' + v + o + '</div></section>';
+    var v = viewing();
+    if (!v) return '';
+    return '<section class="sec" id="viewing"><div class="wrap view-grid">' + v + '</div></section>';
   }
 
   /* ---------------- proslave i doček ---------------- */
@@ -638,8 +643,8 @@
     }
     return '<section class="sec sec-alt" id="events"><div class="wrap">' + head(t('eventsEyebrow'), t('eventsTitle'), t('eventsLead')) +
       (D.events && D.events.length ? '<ul class="events">' + D.events.map(function (e, i) {
-        return '<li class="event reveal" style="--d:' + i + '"><span class="ev-ic">' + ic(e.icon) + '</span><h3>' + esc(L(e.title)) + '</h3><p>' + esc(L(e.text)) + '</p>' +
-          '<button type="button" class="btn btn-line btn-small" data-ask-type="' + esc(e.type || 'other') + '">' + esc(t('askEvent')) + '</button></li>';
+        return '<li class="event reveal" style="--d:' + i + '"><span class="ev-ic">' + ic(e.icon) + '</span><div class="ev-body"><h3>' + esc(L(e.title)) + '</h3><p>' + esc(L(e.text)) + '</p>' +
+          '<button type="button" class="ev-link" data-ask-type="' + esc(e.type || 'other') + '">' + esc(t('askEvent')) + ic('arrow') + '</button></div></li>';
       }).join('') + '</ul>' : '') + ny + '</div></section>';
   }
 
