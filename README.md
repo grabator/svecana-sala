@@ -114,7 +114,14 @@ Vlastita domena: Worker → **Settings → Domains & Routes → Add → Custom d
 
 ---
 
-## 6. Stranica za goste svadbe
+## 6. Razgledanje i akcije
+
+- **Razgledanje:** gost bira dan u kalendaru i sat (`viewing.times`, npr. svaki sat od 10 do 19). Dani i koliko unaprijed: `viewing.weekdays` (0 = nedjelja ... 6 = subota) i `viewing.daysAhead`. Na Viber stiže **zahtjev**: salon potvrdi termin ili predloži drugi (to piše i na stranici, da gost ne misli da je termin već potvrđen).
+- **Akcije:** `offers: [{ date: '2027-02-13', discount: 15 }]`. Prikazuju se kao mala traka iznad kalendara, a u kalendaru su označene zlatno. Klik izabere datum, a popust se sam oduzme u okvirnoj cijeni (popust važi za meni). Akcija za zauzet ili prošao datum se sama sakrije.
+
+---
+
+## 7. Stranica za goste svadbe
 
 `gosti.html?par=Amra%20%26%20Kenan&datum=2027-06-12`
 
@@ -126,7 +133,7 @@ Vlastita domena: Worker → **Settings → Domains & Routes → Add → Custom d
 
 ---
 
-## 7. Provjera prije predaje
+## 8. Provjera prije predaje
 
 - Telefon i računar, sva 4 jezika.
 - Klik na datum u kalendaru → okvirna cijena → upit na Viber (na telefonu se otvara Viber sa napisanom porukom).

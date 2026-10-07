@@ -162,7 +162,7 @@
   }
   function topbar() {
     return '<div class="topbar-in">' +
-      '<a class="brand" href="#top" aria-label="' + esc(L(D.title)) + '">' + brandMark() + '<span class="brand-name">' + esc(D.name) + '</span></a>' +
+      '<a class="brand" href="#top">' + brandMark() + '<span class="brand-name">' + esc(D.name) + '</span></a>' +
       '<nav class="topnav" aria-label="' + esc(t('menu')) + '">' + NAV.filter(function (id) { return has[id]; }).map(function (id) { return '<a href="#' + id + '">' + esc(t('nav.' + id)) + '</a>'; }).join('') + '<span class="topnav-pill" aria-hidden="true"></span></nav>' +
       '<div class="top-tools">' + langSeg() +
       '<a class="btn btn-gold btn-small top-cta" href="#date">' + esc(t('heroCtaDate')) + '</a>' +
@@ -230,7 +230,7 @@
       var cls = 'cal-day' + (okDay ? ' is-free' : '') + (wk ? ' is-weekend' : '') + (b ? ' is-busy' : '') + (o ? ' is-offer' : '') + (s === todayIso ? ' is-today' : '') + (sel ? ' is-sel' : '');
       var state = kind === 'view' ? '' : past ? '' : b ? t('legendBusy') : o ? t('dateOffer', { d: o.discount }) : t('dateFree');
       cells += '<button type="button" class="' + cls + '" ' + C.attr + '="' + s + '"' + (okDay ? '' : ' disabled') + ' aria-pressed="' + sel + '"' +
-        ' aria-label="' + esc(longDate(s) + (state ? ', ' + state : '')) + '"><span class="cd-n">' + d + '</span>' + (o ? '<small class="cd-off">−' + o.discount + '%</small>' : '') + '</button>';
+        ' aria-label="' + esc((o ? d + ' −' + o.discount + '%, ' : '') + longDate(s) + (state ? ', ' + state : '')) + '"><span class="cd-n">' + d + '</span>' + (o ? ' <small class="cd-off">−' + o.discount + '%</small>' : '') + '</button>';
     }
     return '<div class="cal-head"><h3 aria-live="polite">' + esc(t('months')[m.getMonth()] + ' ' + m.getFullYear()) + '</h3><div class="cal-nav">' +
       '<button type="button" class="icon-btn" data-cal="-1" data-kind="' + kind + '" aria-label="' + esc(t('prevMonth')) + '"' + (mo <= 0 ? ' disabled' : '') + '>' + ic('left') + '</button>' +
@@ -274,6 +274,7 @@
       '<div class="cal-legend"><span><i class="lg-free"></i>' + esc(t('legendFree')) + '</span><span><i class="lg-busy"></i>' + esc(t('legendBusy')) + '</span>' + (offers.length ? '<span><i class="lg-offer"></i>' + esc(t('legendOffer')) + '</span>' : '') + '</div>' +
       '<div class="date-pick' + (S.date ? ' has-date' : '') + '" id="date-pick" aria-live="polite">' + datePick() + '</div>' +
       '</div>' +
+      '<div class="steps-card reveal"><p class="steps-h">' + esc(t('stepsTitle')) + '</p><ol class="steps">' + t('steps').map(function (x, i) { return '<li><b>' + (i + 1) + '</b><span>' + esc(x) + '</span></li>'; }).join('') + '</ol></div>' +
       '<form class="card form-card reveal" id="inq" style="--d:1" novalidate>' +
       '<div class="field"><span id="type-l">' + esc(t('eventType')) + '</span><div class="chips" role="radiogroup" aria-labelledby="type-l">' +
       types.map(function (k) { return '<button type="button" class="chip" role="radio" data-type="' + k + '" aria-checked="' + (S.type === k) + '" tabindex="' + (S.type === k ? 0 : -1) + '">' + esc(t('types.' + k)) + '</button>'; }).join('') + '</div></div>' +
@@ -281,7 +282,6 @@
       '<button type="button" class="icon-btn" data-step="-1" aria-label="' + esc(t('fewer')) + '">' + ic('minus') + '</button>' +
       '<input id="f-guests" type="number" inputmode="numeric" min="' + G.min + '" max="' + G.max + '" step="' + G.step + '" value="' + S.guests + '" aria-labelledby="g-l">' +
       '<button type="button" class="icon-btn" data-step="1" aria-label="' + esc(t('more')) + '">' + ic('plus') + '</button></div>' +
-      '<input class="range" id="f-range" type="range" min="' + G.min + '" max="' + G.max + '" step="' + G.step + '" value="' + S.guests + '" aria-labelledby="g-l" tabindex="-1">' +
       '<p class="cap-warn" id="cap-warn" aria-live="polite"></p></div>' +
       (D.halls && D.halls.length || D.menus && D.menus.length ? '<div class="field-row dd-row">' +
         (D.halls && D.halls.length ? dd('hall', t('hallLabel'), S.hall, hallOptions()) : '') +
@@ -618,7 +618,7 @@
     return '<div class="offers-bar reveal" id="offers"><p class="ob-head">' + ic('tag') + '<span><b>' + esc(t('offersTitle')) + '</b>' + (D.offersLead ? '<small>' + esc(L(D.offersLead)) + '</small>' : '') + '</span></p>' +
       '<div class="ob-list">' + offers.map(function (o) {
         var d = parse(o.date);
-        return '<button type="button" class="ob-chip" data-pick-date="' + o.date + '" aria-label="' + esc(t('pickOffer') + ': ' + longDate(o.date) + ', −' + o.discount + '%') + '">' +
+        return '<button type="button" class="ob-chip" data-pick-date="' + o.date + '" title="' + esc(t('pickOffer') + ': ' + longDate(o.date)) + '">' +
           '<span class="ob-date"><b>' + d.getDate() + '</b><small>' + esc(t('months')[d.getMonth()].slice(0, 3)) + '</small></span>' +
           '<span class="ob-txt"><b>' + esc(cap(t('days')[d.getDay()])) + '</b></span>' +
           '<span class="ob-pct">−' + o.discount + '%</span></button>';
@@ -657,7 +657,7 @@
   function reviews() {
     if (!has.reviews) return '';
     return '<section class="sec sec-dark" id="reviews" style="--prev-bg:var(--bg)"><div class="wrap">' + head(t('reviewsEyebrow'), t('reviewsTitle'), D.demo ? t('reviewsDemo') : '', true) +
-      carUi(D.reviews.length, true) + '<ul class="reviews" data-track>' + D.reviews.map(function (r, i) {
+      carUi(D.reviews.length, true) + '<ul class="reviews" data-track tabindex="0" aria-label="' + esc(t('reviewsTitle')) + '">' + D.reviews.map(function (r, i) {
         return '<li class="review reveal" style="--d:' + i + '"><blockquote>' + esc(L(r.text)) + '</blockquote><p><b>' + esc(r.names) + '</b>' + (r.from ? ' · ' + esc(L(r.from)) : '') + '</p></li>';
       }).join('') + '</ul></div></section>';
   }
@@ -958,9 +958,8 @@
     n = Math.round(+n || G.start);
     n = Math.max(G.min, Math.min(G.max, n));
     S.guests = n;
-    var a = document.getElementById('f-guests'), r = document.getElementById('f-range');
+    var a = document.getElementById('f-guests');
     if (a && document.activeElement !== a) a.value = n;
-    if (r) r.value = n;
     updateEstimate(); updateNeed();
   }
   function setType(k) {
@@ -1026,8 +1025,7 @@
     if (id === 'f-name') S.name = e.target.value;
     else if (id === 'f-phone') S.phone = e.target.value;
     else if (id === 'f-msg') S.msg = e.target.value;
-    else if (id === 'f-range') { setGuests(e.target.value); var a = document.getElementById('f-guests'); if (a) a.value = S.guests; return; }
-    else if (id === 'f-guests') { if (e.target.value !== '') { S.guests = Math.max(1, Math.min(G.max, Math.round(+e.target.value) || G.min)); var r = document.getElementById('f-range'); if (r) r.value = S.guests; updateEstimate(); } }
+    else if (id === 'f-guests') { if (e.target.value !== '') { S.guests = Math.max(1, Math.min(G.max, Math.round(+e.target.value) || G.min)); updateEstimate(); } }
     else return;
     updateNeed();
   });

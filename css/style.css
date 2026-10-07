@@ -12,8 +12,8 @@
 @font-face { font-family: 'Manrope'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(../assets/fonts/manrope-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 
 :root {
-  --bg: #f7f2ea; --bg-2: #efe6d8; --card: #fffdf9; --ink: #18211e; --ink-2: #2a3530; --muted: #6d6a61; --line: rgba(24, 33, 30, 0.12);
-  --gold: #b38a46; --gold-2: #dcc08a; --gold-ink: #8a672c; --gold-soft: rgba(179, 138, 70, 0.14);
+  --bg: #f7f2ea; --bg-2: #efe6d8; --card: #fffdf9; --ink: #18211e; --ink-2: #2a3530; --muted: #5d5a52; --line: rgba(24, 33, 30, 0.12);
+  --gold: #b38a46; --gold-2: #dcc08a; --gold-ink: #775722; --gold-soft: rgba(179, 138, 70, 0.14);
   --rose: #d8a59c; --sage: #9db197;
   --night: #0f1719; --night-2: #1b282a; --on-dark: #f4ede1; --on-dark-muted: rgba(244, 237, 225, 0.68); --line-dark: rgba(244, 237, 225, 0.14);
   --ok: #2f7d57; --busy: #b4aea3;
@@ -206,7 +206,8 @@ button { cursor: pointer; }
 .book-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
 .book-grid > *, .view-grid > *, .loc-grid > * { min-width: 0; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
-.cal-card { padding: 18px; }
+.cal-card { order: 1; padding: 18px; }
+.form-card { order: 2; }
 .ms-wrap { position: relative; margin: -4px -18px 16px; }
 .month-strip { display: flex; gap: 8px; padding: 4px 18px 6px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; overscroll-behavior-x: contain; }
 .month-strip.is-drag { cursor: grabbing; scroll-snap-type: none; user-select: none; }
@@ -293,7 +294,6 @@ button { cursor: pointer; }
 .stepper { display: grid; grid-template-columns: 46px minmax(0, 1fr) 46px; align-items: center; gap: 8px; }
 .stepper input { text-align: center; font-family: var(--serif); font-size: 1.5rem; font-weight: 600; padding: 6px; }
 .stepper .icon-btn { width: 46px; height: 46px; }
-.field input.range { width: 100%; min-height: 0; height: 24px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; accent-color: var(--gold); -webkit-appearance: auto; appearance: auto; }
 .cap-warn { font-size: 0.8125rem; color: #9b4a1f; font-weight: 600; }
 .cap-warn:empty { display: none; }
 .dd { position: relative; }
@@ -332,7 +332,18 @@ button { cursor: pointer; }
 .form-err { color: #a23a1a; font-weight: 700; font-size: 0.875rem; }
 .form-err:empty { display: none; }
 @media (min-width: 640px) { .send-btns { grid-template-columns: 1fr 1fr; } .cal-card { padding: 24px; } .form-card { padding: 26px; } }
-@media (min-width: 1000px) { .book-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); align-items: start; gap: 24px; } .form-card { position: sticky; top: 84px; } }
+.steps-card { order: 3; padding: 20px; border-radius: var(--radius); background: var(--night); color: var(--on-dark); }
+.steps-h { font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold-2); }
+.steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 14px; counter-reset: s; }
+.steps li { position: relative; display: flex; align-items: flex-start; gap: 14px; font-size: 0.9375rem; line-height: 1.45; color: rgba(244, 237, 225, 0.9); }
+.steps li:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 34px; bottom: -12px; width: 1px; background: var(--line-dark); }
+.steps b { flex: none; display: grid; place-items: center; width: 31px; height: 31px; border-radius: 50%; border: 1px solid rgba(220, 192, 138, 0.5); font-size: 0.8125rem; font-weight: 800; color: var(--gold-2); }
+.steps span { padding-top: 4px; }
+@media (min-width: 1000px) {
+  .book-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); grid-template-rows: auto 1fr; align-items: start; gap: 24px; }
+  .cal-card { grid-column: 1; grid-row: 1; } .steps-card { grid-column: 1; grid-row: 2; order: 0; padding: 24px 26px; }
+  .form-card { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 84px; }
+}
 
 /* ---------- listanje: tačkice, strelice i animirana oznaka "prevucite" ---------- */
 .car-ui { display: none; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 14px; margin: -6px 0 14px; }
