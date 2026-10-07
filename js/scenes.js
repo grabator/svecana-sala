@@ -235,7 +235,6 @@
       chandelier(400, 120, 0.9, g) + chandelier(150, 170, 0.5, g) + chandelier(650, 170, 0.5, g) +
       '<path d="M0 440H800V600H0z" class="sc-floor-night"/>' +
       '<ellipse cx="400" cy="520" rx="300" ry="60" class="sc-dancefloor-night"/>' +
-      '<g opacity=".5">' + table(120, 500, 150) + table(680, 500, 150) + '</g>' +
       '</svg>';
   };
 

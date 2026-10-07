@@ -165,8 +165,8 @@ window.SALON = {
     de: 'Ideal für kleinere Hochzeiten, Winterfeiern und Wochentage. Der Rabatt gilt für das Menü.'
   },
 
-  /* ---------- razgledanje sale ---------- */
-  viewing: { weekdays: [1, 2, 3, 4, 5, 6], times: ['10:00', '12:00', '17:00', '18:30'], daysAhead: 12 },
+  /* ---------- razgledanje sale (weekdays: 0 = nedjelja ... 6 = subota; daysAhead: koliko dana unaprijed se može zakazati) ---------- */
+  viewing: { weekdays: [1, 2, 3, 4, 5, 6], times: ['10:00', '12:00', '17:00', '18:30'], daysAhead: 60 },
 
   /* ---------- ostale proslave (type: vrsta u formi za upit) ---------- */
   events: [

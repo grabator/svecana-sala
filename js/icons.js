@@ -49,6 +49,7 @@
     download: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
     qr: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
     heart: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.3 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
+    swipe: '<path d="M4 9h11M7 6L4 9l3 3"/><path d="M10 21l-2.6-4.2a1.4 1.4 0 0 1 2.3-1.6l1.3 1.6V11.5a1.3 1.3 0 0 1 2.6 0V15h3.2a2.2 2.2 0 0 1 2.2 2.5L18.5 21"/>',
     sun: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>'
   };
   window.SALON_ICON = function (name, cls) {

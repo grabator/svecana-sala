@@ -6,7 +6,7 @@ window.SALON_UI = {
   bs: {
     skip: 'Preskoči na sadržaj',
     nav: { date: 'Termini', halls: 'Sale', menus: 'Meniji', gallery: 'Galerija', events: 'Proslave', location: 'Lokacija', contact: 'Kontakt' },
-    menu: 'Meni', menuClose: 'Zatvori', langLabel: 'Jezik', toTop: 'Na vrh', scrollMore: 'Pogledaj više',
+    menu: 'Meni', menuClose: 'Zatvori', langLabel: 'Jezik', toTop: 'Na vrh', scrollMore: 'Pogledaj više', swipeHint: 'Prevucite za više',
     heroCtaDate: 'Provjeri slobodan datum', heroCtaView: 'Zakaži razgledanje',
     dateEyebrow: 'Kalendar', dateTitle: 'Provjeri slobodan datum',
     dateLead: 'Izaberite datum, broj gostiju i meni. Okvirnu cijenu vidite odmah, a upit nam stiže na Viber sa svim podacima.',
@@ -69,7 +69,7 @@ window.SALON_UI = {
   hr: {
     skip: 'Preskoči na sadržaj',
     nav: { date: 'Termini', halls: 'Dvorane', menus: 'Jelovnici', gallery: 'Galerija', events: 'Proslave', location: 'Lokacija', contact: 'Kontakt' },
-    menu: 'Izbornik', menuClose: 'Zatvori', langLabel: 'Jezik', toTop: 'Na vrh', scrollMore: 'Pogledaj više',
+    menu: 'Izbornik', menuClose: 'Zatvori', langLabel: 'Jezik', toTop: 'Na vrh', scrollMore: 'Pogledaj više', swipeHint: 'Povucite za više',
     heroCtaDate: 'Provjeri slobodan datum', heroCtaView: 'Dogovori razgledavanje',
     dateEyebrow: 'Kalendar', dateTitle: 'Provjeri slobodan datum',
     dateLead: 'Odaberite datum, broj gostiju i jelovnik. Okvirnu cijenu vidite odmah, a upit nam stiže na Viber sa svim podacima.',
@@ -132,7 +132,7 @@ window.SALON_UI = {
   en: {
     skip: 'Skip to content',
     nav: { date: 'Dates', halls: 'Halls', menus: 'Menus', gallery: 'Gallery', events: 'Events', location: 'Location', contact: 'Contact' },
-    menu: 'Menu', menuClose: 'Close', langLabel: 'Language', toTop: 'Back to top', scrollMore: 'See more',
+    menu: 'Menu', menuClose: 'Close', langLabel: 'Language', toTop: 'Back to top', scrollMore: 'See more', swipeHint: 'Swipe for more',
     heroCtaDate: 'Check available dates', heroCtaView: 'Book a viewing',
     dateEyebrow: 'Calendar', dateTitle: 'Check available dates',
     dateLead: 'Choose a date, number of guests and a menu. You see an estimate right away, and your inquiry reaches us on Viber with all the details.',
@@ -195,7 +195,7 @@ window.SALON_UI = {
   de: {
     skip: 'Zum Inhalt springen',
     nav: { date: 'Termine', halls: 'Säle', menus: 'Menüs', gallery: 'Galerie', events: 'Feiern', location: 'Lage', contact: 'Kontakt' },
-    menu: 'Menü', menuClose: 'Schließen', langLabel: 'Sprache', toTop: 'Nach oben', scrollMore: 'Mehr sehen',
+    menu: 'Menü', menuClose: 'Schließen', langLabel: 'Sprache', toTop: 'Nach oben', scrollMore: 'Mehr sehen', swipeHint: 'Wischen für mehr',
     heroCtaDate: 'Freien Termin prüfen', heroCtaView: 'Besichtigung vereinbaren',
     dateEyebrow: 'Kalender', dateTitle: 'Freien Termin prüfen',
     dateLead: 'Wählen Sie Datum, Gästezahl und Menü. Den ungefähren Preis sehen Sie sofort, und Ihre Anfrage erreicht uns per Viber mit allen Angaben.',

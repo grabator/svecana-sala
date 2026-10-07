@@ -107,7 +107,7 @@
   var featured = (D.menus || []).filter(function (m) { return m.featured; })[0] || (D.menus || [])[0];
   var S = {
     month: 0, date: null, type: 'wedding', guests: G.start, hall: '', menu: featured ? featured.id : '', extras: {},
-    name: '', phone: '', msg: '', vDay: null, vTime: null, mapOn: false, gCat: 'all'
+    name: '', phone: '', msg: '', vDay: null, vTime: null, vMonth: 0, mapOn: false, gCat: 'all'
   };
   function hallById(id) { return (D.halls || []).filter(function (h) { return h.id === id; })[0]; }
   function menuById(id) { return (D.menus || []).filter(function (m) { return m.id === id; })[0]; }
@@ -180,17 +180,25 @@
     else media = SC.hero ? SC.hero() : '';
     var letters = D.name.split('').map(function (c, i) { return '<span class="hero-shine" style="--i:' + i + '">' + (c === ' ' ? '&nbsp;' : esc(c)) + '</span>'; }).join('');
     var stats = (D.stats || []).map(function (s) {
-      return '<li>' + ic(s.icon) + '<span>' + (s.value ? '<b>' + esc(s.value) + '</b> ' : '') + esc(L(s.label)) + '</span></li>';
+      return '<li>' + ic(s.icon) + '<span>' + (s.value ? '<b' + (/^\d+$/.test(s.value) ? ' data-count="' + esc(s.value) + '"' : '') + '>' + esc(s.value) + '</b> ' : '') + esc(L(s.label)) + '</span></li>';
     }).join('');
+    var dust = '';
+    for (var k = 0; k < 18; k++) {
+      var r = seeded('dust' + k), r2 = seeded('dusty' + k);
+      dust += '<i style="--x:' + (r * 100).toFixed(1) + '%;--s:' + (2 + r2 * 4).toFixed(1) + 'px;--t:' + (9 + r2 * 10).toFixed(1) + 's;--dl:-' + (r * 18).toFixed(1) + 's;--sw:' + ((r2 - 0.5) * 60).toFixed(0) + 'px"></i>';
+    }
     return '<div class="hero-art" aria-hidden="true">' + media + '</div><div class="hero-shade" aria-hidden="true"></div>' +
+      '<div class="hero-dust" aria-hidden="true">' + dust + '</div><div class="hero-sweep" aria-hidden="true"></div>' +
       '<div class="hero-in wrap">' +
       '<p class="hero-kind">' + esc(L(D.kind)) + '</p>' +
       '<h1><span class="sr-only">' + esc(L(D.title)) + '</span><span class="h1-name" aria-hidden="true">' + letters + '</span><span class="hero-city" aria-hidden="true">' + esc(D.city) + '</span></h1>' +
+      '<span class="hero-rule" aria-hidden="true"><i></i>' + ic('spark') + '<i></i></span>' +
       '<p class="hero-tag">' + esc(L(D.tagline)) + '</p>' +
       '<div class="hero-ctas"><a class="btn btn-gold" href="#date">' + ic('calendar') + esc(t('heroCtaDate')) + '</a>' +
       (has.view ? '<a class="btn btn-ghost" href="#view">' + ic('eye') + esc(t('heroCtaView')) + '</a>' : '') + '</div>' +
       (stats ? '<ul class="hero-stats">' + stats + '</ul>' : '') +
-      '</div>';
+      '</div>' +
+      '<a class="hero-cue" href="#date"><span>' + esc(t('scrollMore')) + '</span><i aria-hidden="true"></i></a>';
   }
 
   /* ---------------- kalendar i upit ---------------- */
@@ -203,23 +211,36 @@
     }
     return out;
   }
-  function calBody() {
-    var m = monthStart(S.month), first = (m.getDay() + 6) % 7, days = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+  /* razgledanje: dozvoljeni dani (sutra do daysAhead dana, samo radni dani iz podataka) */
+  var VLAST = (function () { var d = new Date(today); d.setDate(d.getDate() + ((D.viewing && D.viewing.daysAhead) || 45)); return iso(d); })();
+  var VMONTHS = (function () { var d = parse(VLAST); return (d.getFullYear() - today.getFullYear()) * 12 + d.getMonth() - today.getMonth() + 1; })();
+  function viewOk(s) { var d = parse(s), w = D.viewing && D.viewing.weekdays; return s > todayIso && s <= VLAST && (!w || w.indexOf(d.getDay()) > -1); }
+  /* dva kalendara sa istim izgledom: 'date' (proslava) i 'view' (razgledanje) */
+  var CAL = {
+    date: { get: function () { return S.month; }, set: function (v) { S.month = v; }, max: function () { return MONTHS; }, ok: function (s) { return !isPast(s) && !isBusy(s); }, sel: function () { return S.date; }, attr: 'data-date' },
+    view: { get: function () { return S.vMonth; }, set: function (v) { S.vMonth = v; }, max: function () { return VMONTHS; }, ok: viewOk, sel: function () { return S.vDay; }, attr: 'data-vdate' }
+  };
+  function calBody(kind) {
+    kind = kind || 'date';
+    var C = CAL[kind], mo = C.get(), m = monthStart(mo), first = (m.getDay() + 6) % 7, days = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
     var cells = '';
     for (var e = 0; e < first; e++) cells += '<span aria-hidden="true"></span>';
     for (var d = 1; d <= days; d++) {
-      var dt = new Date(m.getFullYear(), m.getMonth(), d), s = iso(dt), past = isPast(s), b = isBusy(s), o = offerFor(s), wk = dt.getDay() === 0 || dt.getDay() >= 5;
-      var cls = 'cal-day' + (wk ? ' is-weekend' : '') + (b && !past ? ' is-busy' : '') + (o && !b && !past ? ' is-offer' : '') + (s === todayIso ? ' is-today' : '') + (s === S.date ? ' is-sel' : '');
-      var state = past ? '' : b ? t('legendBusy') : o ? t('dateOffer', { d: o.discount }) : t('dateFree');
-      cells += '<button type="button" class="' + cls + '" data-date="' + s + '"' + (past || b ? ' disabled' : '') + (s === S.date ? ' aria-pressed="true"' : ' aria-pressed="false"') +
-        ' aria-label="' + esc(longDate(s) + (state ? ', ' + state : '')) + '">' + d + '</button>';
+      var dt = new Date(m.getFullYear(), m.getMonth(), d), s = iso(dt), past = isPast(s), wk = dt.getDay() === 0 || dt.getDay() >= 5;
+      var okDay = C.ok(s), b = kind === 'date' && !past && isBusy(s), o = kind === 'date' && okDay ? offerFor(s) : null, sel = s === C.sel();
+      var cls = 'cal-day' + (okDay ? ' is-free' : '') + (wk ? ' is-weekend' : '') + (b ? ' is-busy' : '') + (o ? ' is-offer' : '') + (s === todayIso ? ' is-today' : '') + (sel ? ' is-sel' : '');
+      var state = kind === 'view' ? '' : past ? '' : b ? t('legendBusy') : o ? t('dateOffer', { d: o.discount }) : t('dateFree');
+      cells += '<button type="button" class="' + cls + '" ' + C.attr + '="' + s + '"' + (okDay ? '' : ' disabled') + ' aria-pressed="' + sel + '"' +
+        ' aria-label="' + esc(longDate(s) + (state ? ', ' + state : '')) + '"><span class="cd-n">' + d + '</span>' + (o ? '<small class="cd-off">−' + o.discount + '%</small>' : '') + '</button>';
     }
     return '<div class="cal-head"><h3 aria-live="polite">' + esc(t('months')[m.getMonth()] + ' ' + m.getFullYear()) + '</h3><div class="cal-nav">' +
-      '<button type="button" class="icon-btn" data-cal="-1" aria-label="' + esc(t('prevMonth')) + '"' + (S.month <= 0 ? ' disabled' : '') + '>' + ic('left') + '</button>' +
-      '<button type="button" class="icon-btn" data-cal="1" aria-label="' + esc(t('nextMonth')) + '"' + (S.month >= MONTHS - 1 ? ' disabled' : '') + '>' + ic('right') + '</button></div></div>' +
+      '<button type="button" class="icon-btn" data-cal="-1" data-kind="' + kind + '" aria-label="' + esc(t('prevMonth')) + '"' + (mo <= 0 ? ' disabled' : '') + '>' + ic('left') + '</button>' +
+      '<button type="button" class="icon-btn" data-cal="1" data-kind="' + kind + '" aria-label="' + esc(t('nextMonth')) + '"' + (mo >= C.max() - 1 ? ' disabled' : '') + '>' + ic('right') + '</button></div></div>' +
       '<div class="cal-dow" aria-hidden="true">' + t('daysShort').map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '</div>' +
       '<div class="cal-grid">' + cells + '</div>';
   }
+  function renderAny(kind) { if (kind === 'view') renderVCal(); else renderCal(); }
+  function renderVCal() { var b = document.getElementById('vcal-body'); if (b) b.innerHTML = calBody('view'); }
   function datePick() {
     if (!S.date) return ic('calendar') + '<span class="muted">' + esc(t('pickDateHint')) + '</span>';
     var o = offerFor(S.date);
@@ -247,8 +268,10 @@
     return '<section class="sec" id="date"><div class="wrap">' + head(t('dateEyebrow'), t('dateTitle'), t('dateLead')) +
       '<div class="book-grid">' +
       '<div class="card cal-card reveal">' +
+      '<div class="ms-wrap"><button type="button" class="ms-arrow ms-prev" data-ms="-1" aria-label="' + esc(t('prevMonth')) + '" tabindex="-1">' + ic('left') + '</button>' +
       '<div class="month-strip" role="group" aria-label="' + esc(t('dateEyebrow')) + '">' + monthStrip() + '</div>' +
-      '<div id="cal-body">' + calBody() + '</div>' +
+      '<button type="button" class="ms-arrow ms-next" data-ms="1" aria-label="' + esc(t('nextMonth')) + '" tabindex="-1">' + ic('right') + '</button></div>' +
+      '<div id="cal-body">' + calBody('date') + '</div>' +
       '<div class="cal-legend"><span><i class="lg-free"></i>' + esc(t('legendFree')) + '</span><span><i class="lg-busy"></i>' + esc(t('legendBusy')) + '</span>' + (offers.length ? '<span><i class="lg-offer"></i>' + esc(t('legendOffer')) + '</span>' : '') + '</div>' +
       '<div class="date-pick' + (S.date ? ' has-date' : '') + '" id="date-pick" aria-live="polite">' + datePick() + '</div>' +
       '</div>' +
@@ -350,20 +373,115 @@
   function renderCal() {
     var b = document.getElementById('cal-body');
     if (!b) return;
-    b.innerHTML = calBody();
+    b.innerHTML = calBody('date');
     var strip = document.querySelector('.month-strip');
     if (strip) {
       strip.innerHTML = monthStrip();
-      var act = strip.querySelector('[aria-pressed="true"]');
-      if (act) strip.scrollTo({ left: Math.max(0, act.offsetLeft - 18), behavior: reduced ? 'auto' : 'smooth' });
+      stripToActive(true);
     }
   }
+  /* traka mjeseci: aktivni mjesec uvijek vidljiv, strelice i povlačenje mišem na računaru */
+  function stripToActive(smooth) {
+    var strip = document.querySelector('.month-strip'), act = strip && strip.querySelector('[aria-pressed="true"]');
+    if (!act) return;
+    var x = act.getBoundingClientRect().left - strip.getBoundingClientRect().left + strip.scrollLeft - 40;
+    strip.scrollTo({ left: Math.max(0, x), behavior: smooth && !reduced ? 'smooth' : 'auto' });
+    stripEdges();
+  }
+  function stripEdges() {
+    var strip = document.querySelector('.month-strip'), wrap = strip && strip.parentNode;
+    if (!wrap) return;
+    var max = strip.scrollWidth - strip.clientWidth;
+    wrap.classList.toggle('can-l', strip.scrollLeft > 24);
+    wrap.classList.toggle('can-r', strip.scrollLeft < max - 24);
+  }
+  function bindStrip() {
+    var strip = document.querySelector('.month-strip');
+    if (!strip) return;
+    strip.addEventListener('scroll', stripEdges, { passive: true });
+    var x0 = null, s0 = 0, moved = false;
+    strip.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      x0 = e.clientX; s0 = strip.scrollLeft; moved = false;
+    });
+    window.addEventListener('pointermove', function (e) {
+      if (x0 == null) return;
+      var dx = e.clientX - x0;
+      if (!moved && Math.abs(dx) > 5) { moved = true; strip.classList.add('is-drag'); }
+      if (moved) strip.scrollLeft = s0 - dx;
+    });
+    window.addEventListener('pointerup', function () {
+      if (x0 == null) return;
+      x0 = null; strip.classList.remove('is-drag');
+      if (moved) setTimeout(function () { moved = false; }, 0);
+    });
+    /* poslije povlačenja klik ne bira mjesec */
+    strip.addEventListener('click', function (e) { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+    /* točkić miša gore-dolje lista mjesece, samo dok ima kud */
+    strip.addEventListener('wheel', function (e) {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      var max = strip.scrollWidth - strip.clientWidth;
+      if ((e.deltaY > 0 && strip.scrollLeft < max - 1) || (e.deltaY < 0 && strip.scrollLeft > 1)) { e.preventDefault(); strip.scrollLeft += e.deltaY; }
+    }, { passive: false });
+  }
+
+  /* ---------------- listanje (sale, meniji, utisci na mobitelu) ---------------- */
+  function carUi(n, dark) {
+    var dots = ''; for (var i = 0; i < n; i++) dots += '<i' + (i === 0 ? ' class="on"' : '') + '></i>';
+    return '<div class="car-ui' + (dark ? ' car-dark' : '') + '">' +
+      '<button type="button" class="car-arrow" data-car="-1" aria-label="' + esc(t('prev')) + '">' + ic('left') + '</button>' +
+      '<span class="car-dots" aria-hidden="true">' + dots + '</span>' +
+      '<button type="button" class="car-arrow" data-car="1" aria-label="' + esc(t('next')) + '">' + ic('right') + '</button>' +
+      '<span class="car-hint" aria-hidden="true">' + ic('swipe') + esc(t('swipeHint')) + '</span></div>';
+  }
+  /* beskonačne animacije (svjetla u ilustracijama, akcija, oznaka za listanje) rade samo dok je sekcija na ekranu */
+  var animObs = null;
+  function animGate() {
+    if (animObs) animObs.disconnect();
+    var els = document.querySelectorAll('#top, #main > section');
+    if (!('IntersectionObserver' in window)) { els.forEach(function (x) { x.classList.add('anim-on'); }); return; }
+    animObs = new IntersectionObserver(function (en) { en.forEach(function (x) { x.target.classList.toggle('anim-on', x.isIntersecting); }); });
+    els.forEach(function (x) { animObs.observe(x); });
+  }
+  var carObs = null;
+  function carousels() {
+    if (carObs) carObs.disconnect();
+    carObs = 'IntersectionObserver' in window ? new IntersectionObserver(function (en) {
+      en.forEach(function (x) { if (x.isIntersecting) { carObs.unobserve(x.target); nudge(x.target); } });
+    }, { threshold: 0.55 }) : null;
+    document.querySelectorAll('[data-track]').forEach(function (tr) {
+      var ui = tr.previousElementSibling;
+      function upd() {
+        var on = tr.scrollWidth > tr.clientWidth + 4;
+        ui.classList.toggle('is-on', on);
+        if (!on) return;
+        var items = tr.children, max = tr.scrollWidth - tr.clientWidth, best = Math.round((tr.scrollLeft / Math.max(1, max)) * (items.length - 1));
+        ui.querySelectorAll('.car-dots i').forEach(function (d, i) { d.classList.toggle('on', i === best); });
+        ui.querySelector('[data-car="-1"]').disabled = tr.scrollLeft < 4;
+        ui.querySelector('[data-car="1"]').disabled = tr.scrollLeft > tr.scrollWidth - tr.clientWidth - 4;
+      }
+      tr.addEventListener('scroll', function () { if (!tr.__raf) tr.__raf = requestAnimationFrame(function () { tr.__raf = 0; upd(); }); if (tr.__user) ui.classList.add('touched'); }, { passive: true });
+      ['pointerdown', 'touchstart', 'wheel'].forEach(function (ev) { tr.addEventListener(ev, function () { tr.__user = true; }, { passive: true }); });
+      tr.__upd = upd;
+      upd();
+      if (carObs && !reduced) carObs.observe(tr);
+    });
+  }
+  /* kad se lista prvi put pojavi, malo se pomjeri pa vrati: gost vidi da se lista */
+  function nudge(tr) {
+    if (tr.scrollWidth <= tr.clientWidth + 4 || tr.__user) return;
+    var snap = tr.style.scrollSnapType;
+    tr.style.scrollSnapType = 'none';
+    tr.scrollTo({ left: 80, behavior: 'smooth' });
+    setTimeout(function () { tr.scrollTo({ left: 0, behavior: 'smooth' }); setTimeout(function () { tr.style.scrollSnapType = snap; }, 600); }, 650);
+  }
+  window.addEventListener('resize', function () { document.querySelectorAll('[data-track]').forEach(function (tr) { if (tr.__upd) tr.__upd(); }); });
 
   /* ---------------- sale i meniji ---------------- */
   function halls() {
     if (!has.halls) return '';
     return '<section class="sec sec-dark" id="halls" style="--prev-bg:var(--bg)"><div class="wrap">' + head(t('hallsEyebrow'), t('hallsTitle'), t('hallsLead'), true) +
-      '<div class="halls">' + D.halls.map(function (h, i) {
+      carUi(D.halls.length, true) + '<div class="halls" data-track>' + D.halls.map(function (h, i) {
         return '<article class="hall reveal" style="--d:' + i + '"><div class="hall-art arch-img">' + art(h) + '</div>' +
           '<h3>' + esc(L(h.name)) + '</h3>' +
           '<p class="hall-cap"><span>' + ic('guests') + esc(t('seated', { n: h.seated })) + '</span>' + (h.standing ? '<span>' + ic('glass') + esc(t('standing', { n: h.standing })) + '</span>' : '') + '</p>' +
@@ -376,7 +494,7 @@
   function menus() {
     if (!has.menus) return '';
     return '<section class="sec" id="menus"><div class="wrap">' + head(t('menusEyebrow'), t('menusTitle'), t('menusLead'), true) +
-      '<div class="menus">' + D.menus.map(function (m, i) {
+      carUi(D.menus.length) + '<div class="menus" data-track>' + D.menus.map(function (m, i) {
         return '<article class="menu-card reveal' + (m.featured ? ' is-featured' : '') + '" style="--d:' + i + '">' + (m.featured ? '<span class="menu-badge">' + esc(t('popular')) + '</span>' : '') +
           '<h3>' + esc(L(m.name)) + '</h3>' +
           '<p class="menu-price">' + (m.price ? esc(price(m.price)) + '<small>' + esc(t('perPerson')) + '</small>' : esc(t('onRequest'))) + '</p>' + ORN +
@@ -469,34 +587,23 @@
   })();
 
   /* ---------------- razgledanje i akcije ---------------- */
-  function viewDays() {
-    var v = D.viewing, out = [], d = new Date(today);
-    d.setDate(d.getDate() + 1);
-    for (var i = 0; out.length < (v.daysAhead || 10) && i < 60; i++, d.setDate(d.getDate() + 1)) {
-      if (!v.weekdays || v.weekdays.indexOf(d.getDay()) > -1) out.push(iso(d));
-    }
-    return out;
-  }
   function viewHref() { return S.vDay && S.vTime ? viberHref(t('msgView', { name: D.name, d: longDate(S.vDay), t: S.vTime })) : '#'; }
   function viewing() {
     if (!has.view) return '';
-    var days = viewDays();
     return '<div id="view" class="view-block"><div class="sec-head">' + '<p class="eyebrow">' + esc(t('viewEyebrow')) + '</p>' + splitTitle(t('viewTitle')) + '<p class="lead">' + esc(t('viewLead')) + '</p></div>' +
       '<div class="card view-card reveal">' +
-      '<div class="field"><span id="vd-l">' + esc(t('viewDay')) + '</span><div class="day-strip" role="group" aria-labelledby="vd-l">' + days.map(function (s) {
-        var d = parse(s);
-        return '<button type="button" class="day-chip" data-vday="' + s + '" aria-pressed="' + (S.vDay === s) + '" aria-label="' + esc(longDate(s)) + '"><small>' + esc(t('daysShort')[(d.getDay() + 6) % 7]) + '</small><b>' + d.getDate() + '</b><small>' + esc(t('months')[d.getMonth()].slice(0, 3)) + '</small></button>';
-      }).join('') + '</div></div>' +
+      '<div class="field"><span>' + esc(t('viewDay')) + '</span><div class="view-cal" id="vcal-body">' + calBody('view') + '</div></div>' +
       '<div class="field"><span id="vt-l">' + esc(t('viewTime')) + '</span><div class="chips" role="group" aria-labelledby="vt-l">' + D.viewing.times.map(function (x) { return '<button type="button" class="chip" data-vtime="' + esc(x) + '" aria-pressed="' + (S.vTime === x) + '">' + ic('clock') + esc(x) + '</button>'; }).join('') + '</div></div>' +
-      '<p class="muted small" id="view-need" aria-live="polite">' + esc(S.vDay && S.vTime ? longDate(S.vDay) + ', ' + S.vTime : t('viewNeed')) + '</p>' +
+      '<p class="view-need' + (S.vDay && S.vTime ? ' ok' : '') + '" id="view-need" aria-live="polite">' + ic(S.vDay && S.vTime ? 'check' : 'eye') + '<span>' + esc(viewNeedText()) + '</span></p>' +
       '<a class="btn btn-viber' + (S.vDay && S.vTime ? '' : ' is-locked') + '" id="view-send" href="' + esc(viewHref()) + '"' + (S.vDay && S.vTime ? '' : ' aria-disabled="true"') + '>' + ic('viber') + esc(t('viewSend')) + '</a>' +
       '</div></div>';
   }
+  function viewNeedText() { return S.vDay ? longDate(S.vDay) + (S.vTime ? ', ' + S.vTime : '') : t('viewNeed'); }
   function updateView() {
-    document.querySelectorAll('[data-vday]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-vday') === S.vDay)); });
     document.querySelectorAll('[data-vtime]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-vtime') === S.vTime)); });
-    var ok = !!(S.vDay && S.vTime), a = document.getElementById('view-send');
-    document.getElementById('view-need').textContent = ok ? longDate(S.vDay) + ', ' + S.vTime : t('viewNeed');
+    var ok = !!(S.vDay && S.vTime), a = document.getElementById('view-send'), n = document.getElementById('view-need');
+    n.innerHTML = ic(ok ? 'check' : 'eye') + '<span>' + esc(viewNeedText()) + '</span>';
+    n.classList.toggle('ok', ok);
     a.classList.toggle('is-locked', !ok);
     a.setAttribute('href', viewHref());
     if (ok) a.removeAttribute('aria-disabled'); else a.setAttribute('aria-disabled', 'true');
@@ -545,7 +652,7 @@
   function reviews() {
     if (!has.reviews) return '';
     return '<section class="sec sec-dark" id="reviews" style="--prev-bg:var(--bg)"><div class="wrap">' + head(t('reviewsEyebrow'), t('reviewsTitle'), D.demo ? t('reviewsDemo') : '', true) +
-      '<ul class="reviews">' + D.reviews.map(function (r, i) {
+      carUi(D.reviews.length, true) + '<ul class="reviews" data-track>' + D.reviews.map(function (r, i) {
         return '<li class="review reveal" style="--d:' + i + '"><blockquote>' + esc(L(r.text)) + '</blockquote><p><b>' + esc(r.names) + '</b>' + (r.from ? ' · ' + esc(L(r.from)) : '') + '</p></li>';
       }).join('') + '</ul></div></section>';
   }
@@ -781,22 +888,33 @@
 
   /* ---------------- skrol: traka napretka, dugme na vrh ----------------
    * Varijable se postavljaju samo na male elemente (ne na <html>), da skrol ostane gladak. */
-  var flags = {}, ticking = false;
+  var flags = {}, ticking = false, M = null;
   function setFlag(name, on) { if (flags[name] !== on) { flags[name] = on; root.classList.toggle(name, on); } }
+  /* mjere stranice se čitaju samo kad se nešto promijeni (ne pri svakom pomaku), da skrol ne računa raspored */
+  function measure() {
+    M = {
+      vh: window.innerHeight, max: Math.max(1, document.documentElement.scrollHeight - window.innerHeight),
+      heroH: (document.getElementById('top') || {}).offsetHeight || window.innerHeight,
+      bar: document.getElementById('topbar'), ring: document.querySelector('.to-top-ring .prog'), hi: document.querySelector('.hero-in')
+    };
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(function () { M = null; }).observe(document.body);
+  window.addEventListener('resize', function () { M = null; });
   function onScroll() {
     ticking = false;
-    var y = window.scrollY, vh = window.innerHeight, max = Math.max(1, document.documentElement.scrollHeight - vh), p = Math.min(1, y / max);
-    var bar = document.getElementById('topbar');
-    if (bar) bar.style.setProperty('--progress', p.toFixed(4));
-    var ring = document.querySelector('.to-top-ring .prog');
-    if (ring) ring.style.strokeDashoffset = (138.2 * (1 - p)).toFixed(1);
-    var heroH = (document.getElementById('top') || {}).offsetHeight || vh;
+    if (!M) measure();
+    var y = window.scrollY, p = Math.min(1, y / M.max);
+    if (M.bar) M.bar.style.setProperty('--progress', p.toFixed(4));
+    if (M.ring) M.ring.style.strokeDashoffset = (138.2 * (1 - p)).toFixed(1);
     setFlag('scrolled', y > 40);
-    setFlag('past-hero', y > heroH * 0.55);
-    setFlag('show-top', y > vh * 1.4);
-    if (!reduced && y < heroH) {
-      var hi = document.querySelector('.hero-in');
-      if (hi) { var k = Math.min(1, y / (heroH * 0.8)); hi.style.opacity = (1 - k * 0.9).toFixed(3); hi.style.transform = 'translateY(' + (y * 0.18).toFixed(1) + 'px)'; }
+    setFlag('past-hero', y > M.heroH * 0.55);
+    setFlag('show-top', y > M.vh * 1.4);
+    var gone = y > M.heroH;
+    if (flags.heroGone !== gone) { flags.heroGone = gone; var hero = document.getElementById('top'); if (hero) hero.classList.toggle('is-gone', gone); }
+    if (!reduced && M.hi && (y < M.heroH || !flags.heroDone)) {
+      var k = Math.min(1, y / (M.heroH * 0.8));
+      flags.heroDone = y >= M.heroH;
+      M.hi.style.opacity = (1 - k * 0.9).toFixed(3); M.hi.style.transform = 'translateY(' + (Math.min(y, M.heroH) * 0.18).toFixed(1) + 'px)';
     }
   }
   window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
@@ -848,8 +966,20 @@
   document.addEventListener('click', function (e) {
     var b;
     if ((b = e.target.closest('[data-lang]'))) { setLang(b.getAttribute('data-lang')); return; }
+    if ((b = e.target.closest('[data-car]'))) { var tr = b.closest('.car-ui').nextElementSibling, it = tr.children[0]; tr.__user = true; tr.scrollBy({ left: +b.getAttribute('data-car') * (it ? it.offsetWidth + 14 : tr.clientWidth * 0.8), behavior: reduced ? 'auto' : 'smooth' }); return; }
+    if ((b = e.target.closest('[data-ms]'))) { var st = document.querySelector('.month-strip'); st.scrollBy({ left: +b.getAttribute('data-ms') * st.clientWidth * 0.75, behavior: reduced ? 'auto' : 'smooth' }); return; }
     if ((b = e.target.closest('[data-month]'))) { S.month = +b.getAttribute('data-month'); renderCal(); return; }
-    if ((b = e.target.closest('[data-cal]'))) { S.month = Math.max(0, Math.min(MONTHS - 1, S.month + +b.getAttribute('data-cal'))); renderCal(); var nb = document.querySelector('[data-cal="' + b.getAttribute('data-cal') + '"]'); if (nb && !nb.disabled) nb.focus({ preventScroll: true }); return; }
+    if ((b = e.target.closest('[data-cal]'))) {
+      var kd = b.getAttribute('data-kind') || 'date', C = CAL[kd], dir = b.getAttribute('data-cal');
+      C.set(Math.max(0, Math.min(C.max() - 1, C.get() + +dir))); renderAny(kd);
+      var nb = document.querySelector('[data-cal="' + dir + '"][data-kind="' + kd + '"]'); if (nb && !nb.disabled) nb.focus({ preventScroll: true });
+      return;
+    }
+    if ((b = e.target.closest('.cal-day[data-vdate]'))) {
+      S.vDay = b.getAttribute('data-vdate'); renderVCal(); updateView();
+      var nv = document.querySelector('.cal-day[data-vdate="' + S.vDay + '"]'); if (nv) nv.focus({ preventScroll: true });
+      return;
+    }
     if ((b = e.target.closest('.cal-day'))) { var ds = b.getAttribute('data-date'); selectDate(ds); var nd = document.querySelector('.cal-day[data-date="' + ds + '"]'); if (nd) nd.focus({ preventScroll: true }); return; }
     if ((b = e.target.closest('[data-type]'))) { setType(b.getAttribute('data-type')); return; }
     if ((b = e.target.closest('[data-step]'))) { setGuests(S.guests + +b.getAttribute('data-step') * G.step); return; }
@@ -875,7 +1005,6 @@
     if ((b = e.target.closest('[data-pick-date]'))) { selectDate(b.getAttribute('data-pick-date'), true); return; }
     if ((b = e.target.closest('[data-ask-type]'))) { setType(b.getAttribute('data-ask-type')); goTo('date'); return; }
     if ((b = e.target.closest('[data-gcat]'))) { filterGallery(b.getAttribute('data-gcat')); return; }
-    if ((b = e.target.closest('[data-vday]'))) { S.vDay = b.getAttribute('data-vday'); updateView(); return; }
     if ((b = e.target.closest('[data-vtime]'))) { S.vTime = b.getAttribute('data-vtime'); updateView(); return; }
     if ((b = e.target.closest('#view-send'))) { if (b.classList.contains('is-locked')) { e.preventDefault(); var vn = document.getElementById('view-need'); vn.classList.remove('bump'); void vn.offsetWidth; vn.style.color = '#a23a1a'; setTimeout(function () { vn.style.color = ''; }, 1600); } return; }
     if ((b = e.target.closest('[data-map]'))) {
@@ -925,23 +1054,54 @@
       setType(nx.getAttribute('data-type')); nx.focus();
       return;
     }
-    /* kalendar: strelice pomjeraju dan */
+    /* kalendar: strelice pomjeraju dan (oba kalendara) */
     if (t0.classList && t0.classList.contains('cal-day') && /Arrow(Left|Right|Up|Down)/.test(e.key)) {
       e.preventDefault();
+      var kind = t0.hasAttribute('data-vdate') ? 'view' : 'date', C = CAL[kind];
       var step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
-      var d = parse(t0.getAttribute('data-date'));
+      var d = parse(t0.getAttribute(C.attr));
       for (var n = 0; n < 60; n++) {
         d.setDate(d.getDate() + step);
         var s = iso(d), off = (d.getFullYear() - today.getFullYear()) * 12 + d.getMonth() - today.getMonth();
-        if (off < 0 || off >= MONTHS) return;
-        if (!isPast(s) && !isBusy(s)) {
-          if (off !== S.month) { S.month = off; renderCal(); }
-          var el = document.querySelector('.cal-day[data-date="' + s + '"]'); if (el) el.focus();
+        if (off < 0 || off >= C.max()) return;
+        if (C.ok(s)) {
+          if (off !== C.get()) { C.set(off); renderAny(kind); }
+          var el = document.querySelector('.cal-day[' + C.attr + '="' + s + '"]'); if (el) el.focus();
           return;
         }
       }
     }
   });
+
+  /* brojke na prvom ekranu odbroje do vrijednosti */
+  function countUp() {
+    document.querySelectorAll('.hero [data-count]').forEach(function (b) {
+      var to = +b.getAttribute('data-count'); b.removeAttribute('data-count');
+      if (reduced || to < 10) return;
+      b.textContent = '0';
+      setTimeout(function () {
+        var t0 = performance.now();
+        (function step(now) {
+          var k = Math.min(1, (now - t0) / 1400), e = 1 - Math.pow(1 - k, 3);
+          b.textContent = String(Math.round(to * e));
+          if (k < 1) requestAnimationFrame(step);
+        })(t0);
+      }, 1300);
+    });
+  }
+  /* prvi ekran blago prati miš (samo računar) */
+  if (!reduced && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    var px = 0, py = 0, praf = 0;
+    document.addEventListener('pointermove', function (e) {
+      if (window.scrollY > window.innerHeight) return;
+      px = e.clientX / window.innerWidth - 0.5; py = e.clientY / window.innerHeight - 0.5;
+      if (!praf) praf = requestAnimationFrame(function () {
+        praf = 0;
+        var a = document.querySelector('.hero-art'); if (a) a.style.transform = 'translate3d(' + (px * -14).toFixed(1) + 'px,' + (py * -10).toFixed(1) + 'px,0)';
+        var d = document.querySelector('.hero-dust'); if (d) d.style.transform = 'translate3d(' + (px * 18).toFixed(1) + 'px,' + (py * 12).toFixed(1) + 'px,0)';
+      });
+    }, { passive: true });
+  }
 
   /* ---------------- crtanje ---------------- */
   function render() {
@@ -962,11 +1122,14 @@
     tt.innerHTML = toTop();
     Guide.build();
     updateEstimate(); updateNeed();
-    var strip = document.querySelector('.month-strip'), act = strip && strip.querySelector('[aria-pressed="true"]');
-    if (act) strip.scrollLeft = Math.max(0, act.offsetLeft - 18);
+    bindStrip();
+    stripToActive(false);
+    carousels();
+    animGate();
+    countUp();
     reveal();
     Spy.start();
-    flags = {}; onScroll();
+    flags = {}; M = null; onScroll();
   }
   function setLang(l) {
     if (l === lang || LANGS.indexOf(l) < 0) return;
